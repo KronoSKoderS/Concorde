@@ -261,3 +261,6 @@ __pycache__/
 *.pyc
 docs/_build/
 .cache/
+build/
+dist/
+concorde.egg-info/

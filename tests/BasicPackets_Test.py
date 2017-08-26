@@ -2,7 +2,7 @@ import unittest
 
 from random import randint
 
-from concorde import models
+from calpack import models
 
 
 class TestSimplePackets(unittest.TestCase):

@@ -1,4 +1,4 @@
-from concorde import models
+from calpack import models
 
 
 class TCP_HEADER(models.Packet):
