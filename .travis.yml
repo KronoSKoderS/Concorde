@@ -43,6 +43,7 @@ deploy:
       distributions: sdist bdist_wheel
       repo: KronoSKoderS/CalPack
       condition: TRAVIS_EVENT_TYPE != 'cron'
+      python: "3.6"
       
   - provider: releases
     skip_cleanup: true
@@ -51,6 +52,6 @@ deploy:
     file: $(build/*.tar.gz)
     on:
       repo: KronoSKoderS/CalPack
-      branch: tags
+      tags: true
       condition: TRAVIS_EVENT_TYPE != 'cron'
 

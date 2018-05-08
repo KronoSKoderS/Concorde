@@ -124,7 +124,7 @@ class Test_AdvancedPacket(unittest.TestCase):
         c_pkt.bool_field = True
 
         b_str = pkt.to_bytes()
-        c_b_str = ctypes.string_at(ctypes.addressof(c_pkt), ctypes.sizeof(c_pkt))
+        c_b_str = ctypes.string_at(ctypes.addressof(c_pkt), ctypes.sizeof(c_PrimaryPacket))
 
         self.assertEqual(b_str, c_b_str)
 
@@ -135,3 +135,52 @@ class Test_AdvancedPacket(unittest.TestCase):
         self.assertAlmostEqual(parsed_pkt.double_field, -3.14, places=5)
         self.assertAlmostEqual(parsed_pkt.long_double_field, 123.456, places=5)
         self.assertEqual(parsed_pkt.bool_field, True)
+
+    def test_advpkt_inheritance(self):
+        """
+        This test verifies the functionality of Class Inheritance for Packets.
+        See also GitHub Issue #84 (https://github.com/KronoSKoderS/CalPack/issues/84)
+        """
+
+        class TemplatePacket(models.Packet):
+            PKT_UID = 0x00
+
+            ID = models.IntField8()
+            TYPE = models.IntField8()
+            reserved0 = models.IntField16(bit_len=7)
+            length = models.IntField16(bit_len=9)
+            reserved1 = models.IntField32(bit_len=4)
+            utcTimeUpper = models.IntField32(bit_len=28)
+            utcTimeLower = models.IntField32()
+            PacketStatus = models.IntField32()
+            padding = models.IntField32()   
+        
+        class MyPacket(TemplatePacket): 
+            PKT_UID = 0x0E
+
+
+        t_pkt = TemplatePacket()
+        m_pkt = MyPacket()
+
+        # First let's check the original issue of the packet length:
+        self.assertEqual(len(t_pkt), len(m_pkt))
+
+        # Next, let's for sure verify that the fields are there:
+        self.assertEqual(t_pkt.ID, m_pkt.ID)
+        self.assertEqual(t_pkt.length, m_pkt.length)
+
+        # Next, let's verify that the packets are indeed different:
+        t_pkt.PacketStatus = 0xbeefcafe
+        m_pkt.PacketStatus = 0xdeadbeef
+        self.assertNotEqual(t_pkt.PacketStatus, m_pkt.PacketStatus)
+
+        m_pkt.PacketStatus = 0xbeefcafe
+
+        # check to make sure the output of the byte data
+        # is the same
+        self.assertEqual(t_pkt.to_bytes(), m_pkt.to_bytes())
+
+
+        # Check to make sure the PKT_UID's remain correct
+        self.assertEqual(t_pkt.PKT_UID, 0x00)
+        self.assertEqual(m_pkt.PKT_UID, 0x0E)

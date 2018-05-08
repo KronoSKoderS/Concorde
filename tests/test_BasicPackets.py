@@ -173,6 +173,21 @@ class Test_BasicPacket(unittest.TestCase):
         self.assertNotEqual(p1.int_field, p2.int_field)
         self.assertNotEqual(p1.int_field_signed, p2.int_field_signed)
 
+    def test_pkt_len(self):
+        class simple_pkt(models.Packet):
+            int_field = models.IntField()
+            int_field_signed = models.IntField(signed=True)
+
+        class c_simple_pkt(ctypes.Structure):
+            _fields_ = (
+                ('int_field', ctypes.c_uint),
+                ('int_field_signed', ctypes.c_int)
+            )
+
+        p1 = simple_pkt()
+
+        self.assertEqual(len(p1), ctypes.sizeof(c_simple_pkt))
+
 
 class Test_EndianPacket(unittest.TestCase):
 
